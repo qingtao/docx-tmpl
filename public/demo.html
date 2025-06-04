@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DOCX 模板测试</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f7f9fc;
+            padding: 2rem;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: inline-block;
+            width: 80px;
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 90px);
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        button {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #error {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background-color: #ffe6e6;
+            color: #d90000;
+            border-left: 4px solid #d90000;
+            display: none;
+        }
+
+        a#template {
+            font-size: 1rem;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a#template:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>DOCX 请求测试</h1>
+        <p>
+            模板文件：<a id="template" href="">simple.docx</a>
+        </p>
+        <p>
+        <form id="form">
+            <label for="name">姓名</label>
+            <input type="text" id="name" name="name" value="张三" />
+
+            <label for="age">年龄</label>
+            <input type="text" id="age" name="age" value="18" />
+
+            <label for="address">地址</label>
+            <input type="text" id="address" name="address" value="北京" />
+        </form>
+        </p>
+        <p>
+            <button id="sendRequest">生成文档</button>
+        </p>
+        <div id="error"></div>
+    </div>
+
+    <script>
+        const baseURL = 'http://localhost:8080';
+        const errorEl = document.getElementById('error');
+        const templateEl = document.getElementById('template');
+        const templaeURL = `${baseURL}/files/simple.docx`;
+
+        templateEl.href = templaeURL;
+
+        document.getElementById('sendRequest').addEventListener('click', async () => {
+            const url = `${baseURL}/api/docx`;
+            const payload = {
+                template_url: templaeURL,
+                data: {
+                    name: document.getElementById('name').value,
+                    age: document.getElementById('age').value,
+                    address: document.getElementById('address').value
+                },
+                output_file: 'output导出文件.docx',
+                template_token: '123'
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Origin": "localhost"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(errorText);
+                    errorEl.innerText = "响应异常: " + errorText;
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                // 获取 blob 文件流
+                const docxBlob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(docxBlob);
+
+                // 创建 a 标签触发下载
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = payload.output_file; // 支持中文文件名
+                document.body.appendChild(a);
+                a.click();
+
+                // 清理
+                window.URL.revokeObjectURL(downloadUrl);
+                document.body.removeChild(a);
+                errorEl.style.display = 'none';
+
+            } catch (error) {
+                console.error('请求异常:', error);
+                errorEl.innerHTML = `请求异常: 请查看控制台日志`;
+                errorEl.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

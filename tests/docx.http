@@ -1,0 +1,14 @@
+###
+@HOST=http://localhost:8080
+POST {{HOST}}/api/docx
+
+{
+    "template_url": "{{HOST}}/files/simple.docx",
+    "data": {
+        "name": "John Doe",
+        "age": 30,
+        "address": "123 Main St"
+    },
+    "output_file": "output导出文件.docx",
+    "template_token": "123"
+}
