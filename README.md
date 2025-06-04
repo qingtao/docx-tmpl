@@ -38,6 +38,8 @@ PORT=3001 ./docx-tmpl
 
 接口采用 UTF-8 编码，请求参数为 json 格式。
 
+假设服务器监听地址: `http://localhost:8080`
+
 ### 1. 请求生成文档
 
 - 请求路径: `/api/docx`
@@ -72,5 +74,14 @@ PORT=3001 ./docx-tmpl
     "template_error": "{\"code\":400,\"message\":\"示例模板文件不正确\"}"
   }
   ```
+
+### 2. 演示页
+
+- 请求路径: `/demo`
+
+例如: `http://localhost:8080/demo`
+
+![示例](example/demo.png)
+
 
 This project was created using `bun init` in bun v1.2.16. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
