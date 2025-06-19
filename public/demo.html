@@ -112,7 +112,9 @@
     </div>
 
     <script>
-        const baseURL = 'http://localhost:8080';
+        const locaton = window.location;
+        // console.log('当前页面地址:', locaton);
+        const baseURL = locaton.origin;
         const errorEl = document.getElementById('error');
         const templateEl = document.getElementById('template');
         const templaeURL = `${baseURL}/files/simple.docx`;
