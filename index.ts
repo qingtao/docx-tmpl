@@ -1,5 +1,4 @@
 import { TemplateHandler } from 'easy-template-x';
-// @ts-ignore
 import simple_docx from './public/simple.docx' with  { type: 'file' };
 import demo_html from './public/demo.html' with  { type: 'file' };
 
