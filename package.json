@@ -6,8 +6,8 @@
     "start": "bun run index.ts",
     "dev": "bun run --watch index.ts",
     "build:prod": " bun build --compile --baseline --minify --sourcemap ./index.ts ./public/* --outfile dist/docx-tmpl",
-    "build:linux:arm64": " bun build --compile --target=bun-linux--arm64 --minify --sourcemap  ./index.ts ./public/* --outfile dist/docx-tmpl",
-    "build:darwin:arm64": " bun build --compile --target=bun-darwin-arm64 --minify --sourcemap  ./index.ts ./public/* --outfile dist/docx-tmpl"
+    "build:linux:arm64": " bun build --compile --target=bun-linux--arm64 --minify --sourcemap  ./index.ts ./public/* --outfile dist/docx-tmpl-linux-arm64",
+    "build:darwin:arm64": " bun build --compile --target=bun-darwin-arm64 --minify --sourcemap  ./index.ts ./public/* --outfile dist/docx-tmpl-darwin-arm64"
   },
   "private": true,
   "devDependencies": {
