@@ -17,7 +17,12 @@ bun dev
 ## 编译打包
 
 ```bash
-bun build:prod
+# 编译
+bun run build:prod
+# linux/arm64
+bun run build:linux:arm64
+# darwin/arm64
+bun run build:darwin:arm64
 ```
 
 编译成功后在 dist 目录下生成 `docx-templ` 文件
