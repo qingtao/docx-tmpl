@@ -1,14 +1,14 @@
-###
+### 简单示例
 @HOST=http://localhost:8080
 POST {{HOST}}/api/docx
 
 {
-    "template_url": "{{HOST}}/files/simple.docx",
+    "template_url": "{{HOST}}/files/sample.docx",
     "data": {
         "name": "John Doe",
         "age": 30,
-        "address": "123 Main St"
+        "address": " Main St"
     },
     "output_file": "output导出文件.docx",
-    "template_token": "123"
+    "template_token": ""
 }

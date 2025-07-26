@@ -1,24 +1,33 @@
-import { TemplateHandler } from 'easy-template-x';
-import simple_docx from './public/simple.docx' with  { type: 'file' };
-import demo_html from './public/demo.html' with  { type: 'file' };
+import { TemplateHandler, type TemplateData } from 'easy-template-x';
+import { createResolver } from "easy-template-x-angular-expressions";
+import sample_docx from './public/sample.docx' with  { type: 'file' };
+import advanced_docx from './public/advanced.docx' with  { type: 'file' };
+import sample_html from './public/sample.html' with  { type: 'file' };
+import advanced_html from './public/advanced.html' with  { type: 'file' };
+import index_html from './public/index.html' with  { type: 'file' };
 
 const server = Bun.serve({
     port: process.env.PORT || 8080,
     routes: {
-        "/api/status": {
+        "/metrics": {
             GET: (_req, server) => metrics(server),
         },
+        "/api/status": new Response("OK"),
         "/api/docx": {
             POST: (req, server) => handleDocx(req, server),
             OPTIONS: req => docx_cors(req),
         },
         // 固定的返回示例文件
         "/files/*": {
-            GET: req => send_simple_file(req),
+            GET: req => send_template_file(req),
         },
-        "/demo": {
-            GET: req => demo(req),
-        }
+        "/example/sample": {
+            GET: req => sample(req),
+        },
+        "/example/advanced": {
+            GET: req => advanced(req),
+        },
+        "/example": new Response(Bun.file(index_html))
     },
     fetch(_req, _server) {
         return not_found();
@@ -45,8 +54,12 @@ const docx_cors = (req: Bun.BunRequest) => {
     })
 }
 
-const demo = (req: Bun.BunRequest) => {
-    const f = Bun.file(demo_html);
+// 正则表达式匹配sample.doc[x]
+const htmlRe = new RegExp('.+/files/(.*\.html?)')
+
+const sample = (req: Bun.BunRequest) => {
+
+    const f = Bun.file(sample_html);
     return new Response(f, {
         status: 200,
         headers: {
@@ -55,12 +68,24 @@ const demo = (req: Bun.BunRequest) => {
     });
 }
 
+
+const advanced = (req: Bun.BunRequest) => {
+    const f = Bun.file(advanced_html);
+    return new Response(f, {
+        status: 200,
+        headers: {
+            "Content-Type": "text/html",
+        },
+    });
+}
+
+
 // DocxRequest 请求生成文档的参数
 interface docx_request {
     // 模板文件的地址
     template_url: string
     // 数据字段
-    data: Record<string, any>
+    data: TemplateData;
     // 输出文件名
     output_file: string
     // 令牌， 请求文件时使用 Authorization: Bearer ${token}头部和template_url指定的文件地址
@@ -95,10 +120,12 @@ const error_response = (res: api_response) => {
 }
 
 const get_template_file = async (url: string, token?: string) => {
+    const headers: Record<string, string> = {};
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
     return fetch(url, {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
+        headers
     }).then(async (res) => {
         if (!res.ok) {
             const txt = await res.text()
@@ -110,12 +137,13 @@ const get_template_file = async (url: string, token?: string) => {
     })
 }
 
-// 正则表达式匹配simple.doc[x]
-const re = new RegExp('.+/files/(simple\.docx?)')
+// 正则表达式匹配sample.doc[x]
+const docRe = new RegExp('.+/files/(.*\.docx?)')
 
-// send_simple_file 测试文件
-const send_simple_file = (req: Bun.BunRequest) => {
-    const filename = req.url.replace(re, "$1");
+// send_sample_file 测试文件
+const send_template_file = (req: Bun.BunRequest) => {
+    console.log('Authorization', req.headers.get('Authorization'))
+    const filename = req.url.replace(docRe, "$1");
     // console.log("filename: ", filename)
     if (!filename || filename === req.url) {
         return error_response({
@@ -123,8 +151,11 @@ const send_simple_file = (req: Bun.BunRequest) => {
             message: "示例模板文件不正确"
         })
     }
-    if (filename === "simple.docx") {
-        return new Response(Bun.file(simple_docx));
+    switch (filename) {
+        case "sample.docx":
+            return new Response(Bun.file(sample_docx));
+        case "advanced.docx":
+            return new Response(Bun.file(advanced_docx));
     }
     return error_response({
         code: 404,
@@ -135,7 +166,6 @@ const send_simple_file = (req: Bun.BunRequest) => {
 // handleDocx 处理生成docx文档的请求, 如果成功将返回文件流，失败返回错误信息
 const handleDocx = async (req: Request, server: Bun.Server) => {
     const args = await req.json() as docx_request;
-    // console.log('args', args);
     if (!args.template_url || (!args.template_url.startsWith('http://') && !args.template_url.startsWith('https://'))) {
         return error_response({
             code: 400,
@@ -157,7 +187,9 @@ const handleDocx = async (req: Request, server: Bun.Server) => {
 
     const templateFile = await get_template_file(args.template_url, args.template_token)
 
-    const handler = new TemplateHandler();
+    const handler = new TemplateHandler({
+        scopeDataResolver: createResolver()
+    });
     const doc = await handler.process(templateFile, args.data)
     return new Response(doc, {
         headers: {
@@ -170,7 +202,6 @@ const handleDocx = async (req: Request, server: Bun.Server) => {
 
 const metrics = (server: Bun.Server) => {
     return new Response(
-        `server_hostname: ${server.hostname}\n` +
         `server_port: ${server.port}\n` +
         `server_active_requests: ${server.pendingRequests}\n`
     )

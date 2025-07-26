@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DOCX 模板测试 - advanced.docx</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f7f9fc;
+            padding: 2rem;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+
+        button {
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #error {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background-color: #ffe6e6;
+            color: #d90000;
+            border-left: 4px solid #d90000;
+            display: none;
+        }
+
+        a#template {
+            font-size: 1rem;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        a#template:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>DOCX 请求测试</h1>
+        <p>
+            模板文件：<a id="template" href="">advanced.docx</a>
+        </p>
+        <p>
+            <button id="sendRequest">生成文档</button>
+        </p>
+        <div id="error"></div>
+        <p>
+            <pre id="code"></pre>
+        </p>
+    </div>
+
+    <script>
+        const locaton = window.location;
+        // console.log('当前页面地址:', locaton);
+        const baseURL = locaton.origin;
+        const errorEl = document.getElementById('error');
+        const templateEl = document.getElementById('template');
+        const templaeURL = `${baseURL}/files/advanced.docx`;
+
+        templateEl.href = templaeURL;
+
+
+        const data = `{
+    "session": {
+        "name": "第一期"
+    },
+    "scores": {
+        "seq": 1,
+        "title": "请您对本期课程内容、教学效果给出总体评价",
+        "remark": "（只需评价参与的课程）",
+        "tableHeader": [
+            "序号",
+            "选项",
+            "得分（分）"
+        ],
+        "options": [
+            {
+                "seq": 1,
+                "title": "Go语言程序设计-李四",
+                "score": 3
+            },
+            {
+                "seq": 2,
+                "title": "Go语言程序设计-张三",
+                "score": 0
+            },
+            {
+                "seq": 3,
+                "title": "数据库系统设计-李四",
+                "score": 0
+            }
+        ]
+    },
+    "other_scores": [
+        {
+            "seq": 2,
+            "title": "单选题（单选题）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "Go语言程序设计-张三",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 0,
+                    "seq": 2
+                }
+            ]
+        },
+        {
+            "seq": 3,
+            "title": "多选题（最多选2项）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "数据库系统设计-李四",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 0,
+                    "seq": 2
+                }
+            ]
+        },
+        {
+            "seq": 4,
+            "title": "单选题（单选题）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "数据库系统设计-李四",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "Go语言程序设计-张三",
+                    "score": 0,
+                    "seq": 2
+                },
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 0,
+                    "seq": 3
+                }
+            ]
+        },
+        {
+            "seq": 5,
+            "title": "单选题（单选题）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "数据库系统设计-李四",
+                    "score": 0,
+                    "seq": 2
+                },
+                {
+                    "title": "Go语言程序设计-张三",
+                    "score": 0,
+                    "seq": 3
+                }
+            ]
+        },
+        {
+            "seq": 6,
+            "title": "单选题（单选题）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "数据库系统设计-李四",
+                    "score": 0,
+                    "seq": 2
+                },
+                {
+                    "title": "Go语言程序设计-张三",
+                    "score": 0,
+                    "seq": 3
+                }
+            ]
+        },
+        {
+            "seq": 7,
+            "title": "单选题（单选题）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "数据库系统设计-李四",
+                    "score": 0,
+                    "seq": 2
+                },
+                {
+                    "title": "Go语言程序设计-张三",
+                    "score": 0,
+                    "seq": 3
+                }
+            ]
+        },
+        {
+            "seq": 8,
+            "title": "多选题（最多选2项）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "Go语言程序设计-张三",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "数据库系统设计-李四",
+                    "score": 1,
+                    "seq": 2
+                },
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 0,
+                    "seq": 3
+                }
+            ]
+        },
+        {
+            "seq": 9,
+            "title": "多选题（最多选3项）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [
+                {
+                    "title": "Go语言程序设计-李四",
+                    "score": 1,
+                    "seq": 1
+                },
+                {
+                    "title": "Go语言程序设计-张三",
+                    "score": 1,
+                    "seq": 2
+                },
+                {
+                    "title": "数据库系统设计-李四",
+                    "score": 1,
+                    "seq": 3
+                }
+            ]
+        },
+        {
+            "seq": 10,
+            "title": "问答题（问答题）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [],
+            "answers": [
+                {
+                    "seq": 1,
+                    "content": "这堂课太有趣了"
+                }
+            ]
+        },
+        {
+            "seq": 11,
+            "title": "问答题（问答题）",
+            "tableHeader": [
+                "序号",
+                "选项",
+                "参与选择人次"
+            ],
+            "options": [],
+            "answers": [
+                {
+                    "seq": 1,
+                    "content": "这堂课太有趣了"
+                },
+                {
+                    "seq": 2,
+                    "content": "非常精彩"
+                }
+            ]
+        }
+    ]
+}`;
+        document.getElementById('code').innerHTML = data;
+
+
+        document.getElementById('sendRequest').addEventListener('click', async () => {
+            const url = `${baseURL}/api/docx`;
+            const payload = {
+                template_url: templaeURL,
+                data: JSON.parse(data),
+                output_file: 'output导出文件.docx',
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        "Origin": "localhost"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(errorText);
+                    errorEl.innerText = "响应异常: " + errorText;
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                // 获取 blob 文件流
+                const docxBlob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(docxBlob);
+
+                // 创建 a 标签触发下载
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = payload.output_file; // 支持中文文件名
+                document.body.appendChild(a);
+                a.click();
+
+                // 清理
+                window.URL.revokeObjectURL(downloadUrl);
+                document.body.removeChild(a);
+                errorEl.style.display = 'none';
+
+            } catch (error) {
+                console.error('请求异常:', error);
+                errorEl.innerHTML = `请求异常: 请查看控制台日志`;
+                errorEl.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

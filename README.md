@@ -56,11 +56,27 @@ PORT=3001 ./docx-tmpl
 | template_url | string   | 是       | 模板文件地址, 必须以 `http://` 或 `https://` 开头                |
 | data         | object   | 是       | 文档数据, 必须是与模板变量匹配的 json 格式，参数以模板中使用为准 |
 | output_file  | string   | 是       | 输出文件名，必须以 `.docx` 结尾                                  |
-| token        | string   | 否       |                                                                  |
+| template_token        | string   | 否       | 如果非空，服务请求模板文件时会通过请求头发送令牌,                                                                 |
+
+- 请求示例:
+
+```json
+{
+    "template_url": "{{HOST}}/files/sample.docx",
+    "data": {
+        "name": "John Doe",
+        "age": 30,
+        "address": " Main St"
+    },
+    "output_file": "output导出文件.docx",
+    "template_token": "TOKEN"
+}
+```
+
 
 - 成功返回: `application/vnd.openxmlformats-officedocument.wordprocessingml.document`
 
-成功时返回文档附件, 可以按照附件下载，参考 [demo.html](public/demo.html)
+成功时返回文档附件, 可以按照附件下载，参考 [sample.html](public/sample.html)
 
 - 失败返回: `application/json`
 
@@ -82,11 +98,11 @@ PORT=3001 ./docx-tmpl
 
 ### 2. 演示页
 
-- 请求路径: `/demo`
+- 请求路径: `/example`
 
-例如: `http://localhost:8080/demo`
+例如: `http://localhost:8080/example`
 
-![示例](example/demo.png)
+![简单示例](example/sample.png)
 
 
 This project was created using `bun init` in bun v1.2.16. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>DOCX 模板测试</title>
+    <title>DOCX 模板测试 - sample.docx</title>
     <style>
         body {
             font-family: "Segoe UI", sans-serif;
@@ -91,7 +91,7 @@
     <div class="container">
         <h1>DOCX 请求测试</h1>
         <p>
-            模板文件：<a id="template" href="">simple.docx</a>
+            模板文件：<a id="template" href="">sample.docx</a>
         </p>
         <p>
         <form id="form">
@@ -117,7 +117,7 @@
         const baseURL = locaton.origin;
         const errorEl = document.getElementById('error');
         const templateEl = document.getElementById('template');
-        const templaeURL = `${baseURL}/files/simple.docx`;
+        const templaeURL = `${baseURL}/files/sample.docx`;
 
         templateEl.href = templaeURL;
 
