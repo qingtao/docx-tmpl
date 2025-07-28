@@ -207,4 +207,4 @@ const metrics = (server: Bun.Server) => {
     )
 }
 
-console.log(`Listening on port ${server.port}`);
+console.log(`Listening on port http://${server.hostname}:${server.port}`);

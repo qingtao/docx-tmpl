@@ -1,6 +1,8 @@
-# docx-tmpl 提供一个.docx 文件生成服务
+# docx-tmpl 提供一个Word文档(.docx)文件生成服务
 
 ## 开发指南
+
+本服务基于[easy-template-x]文档模板功能，使用[Bun]编译成独立的可执行文件；
 
 1. 安装依赖
 
@@ -33,17 +35,15 @@ bun run build:darwin:arm64
 ./docx-tmpl
 ```
 
-可以指定监听的端口号:
+可以指定监听的端口号，例如:
 
 ```bash
-PORT=3001 ./docx-tmpl
+PORT=8080 ./docx-tmpl
 ```
 
 ## API
 
 接口采用 UTF-8 编码，请求参数为 json 格式。
-
-假设服务器监听地址: `http://localhost:8080`
 
 ### 1. 请求生成文档
 
@@ -98,11 +98,14 @@ PORT=3001 ./docx-tmpl
 
 ### 2. 演示页
 
-- 请求路径: `/example`
+默认端口时打开`http://localhost:8080/example`查看示例。
 
-例如: `http://localhost:8080/example`
+### 3. 使用帮助
 
-![简单示例](example/sample.png)
+模板法参考 [easy-template-x]
 
 
-This project was created using `bun init` in bun v1.2.16. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+
+
+[bun]: https://bun.sh
+[easy-template-x]: https://github.com/alonrbar/easy-template-x
