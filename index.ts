@@ -1,10 +1,10 @@
 import { TemplateHandler, type TemplateData } from 'easy-template-x';
 import { createResolver } from "easy-template-x-angular-expressions";
-import sample_docx from './public/sample.docx' with  { type: 'file' };
-import advanced_docx from './public/advanced.docx' with  { type: 'file' };
-import sample_html from './public/sample.html' with  { type: 'file' };
-import advanced_html from './public/advanced.html' with  { type: 'file' };
-import index_html from './public/index.html' with  { type: 'file' };
+import sample_docx from './public/sample.docx';
+import advanced_docx from './public/advanced.docx';
+import sample_html from './public/sample.html';
+import advanced_html from './public/advanced.html';
+import index_html from './public/index.html';
 
 const server = Bun.serve({
     port: process.env.PORT || 8080,
@@ -21,13 +21,9 @@ const server = Bun.serve({
         "/files/*": {
             GET: req => send_template_file(req),
         },
-        "/example/sample": {
-            GET: req => sample(req),
-        },
-        "/example/advanced": {
-            GET: req => advanced(req),
-        },
-        "/example": new Response(Bun.file(index_html))
+        "/example/sample": sample_html,
+        "/example/advanced": advanced_html,
+        "/example": index_html,
     },
     fetch(_req, _server) {
         return not_found();
@@ -53,32 +49,6 @@ const docx_cors = (req: Bun.BunRequest) => {
         },
     })
 }
-
-// 正则表达式匹配sample.doc[x]
-const htmlRe = new RegExp('.+/files/(.*\.html?)')
-
-const sample = (req: Bun.BunRequest) => {
-
-    const f = Bun.file(sample_html);
-    return new Response(f, {
-        status: 200,
-        headers: {
-            "Content-Type": "text/html",
-        },
-    });
-}
-
-
-const advanced = (req: Bun.BunRequest) => {
-    const f = Bun.file(advanced_html);
-    return new Response(f, {
-        status: 200,
-        headers: {
-            "Content-Type": "text/html",
-        },
-    });
-}
-
 
 // DocxRequest 请求生成文档的参数
 interface docx_request {
@@ -142,7 +112,7 @@ const docRe = new RegExp('.+/files/(.*\.docx?)')
 
 // send_sample_file 测试文件
 const send_template_file = (req: Bun.BunRequest) => {
-    console.log('Authorization', req.headers.get('Authorization'))
+    // console.log('Authorization', req.headers.get('Authorization'))
     const filename = req.url.replace(docRe, "$1");
     // console.log("filename: ", filename)
     if (!filename || filename === req.url) {
@@ -207,4 +177,5 @@ const metrics = (server: Bun.Server) => {
     )
 }
 
-console.log(`Listening on port http://${server.hostname}:${server.port}`);
+console.info(`Listening on port http://${server.hostname}:${server.port}`);
+console.info(`See http://${server.hostname}:${server.port}/example`)
