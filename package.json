@@ -11,13 +11,13 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.2.22"
   },
   "peerDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
-    "easy-template-x": "^6.2.2",
+    "easy-template-x": "^7.0.1",
     "easy-template-x-angular-expressions": "0.2.2"
   }
 }
