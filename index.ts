@@ -5,7 +5,7 @@ import advanced_docx from './public/advanced.docx';
 import sample_html from './public/sample.html';
 import advanced_html from './public/advanced.html';
 import index_html from './public/index.html';
-import sample_image from './public/sample.png';
+import sample_image from './public/profile.png';
 
 const server = Bun.serve({
     port: process.env.PORT || 8080,

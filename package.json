@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "docx-tmpl": ".",
-    "easy-template-x": "git+https://github.com/qingtao/easy-template-x#v7.0.1",
+    "easy-template-x": "file:../easy-template-x",
     "easy-template-x-angular-expressions": "0.2.2"
   }
 }
