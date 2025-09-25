@@ -5,6 +5,7 @@ import advanced_docx from './public/advanced.docx';
 import sample_html from './public/sample.html';
 import advanced_html from './public/advanced.html';
 import index_html from './public/index.html';
+import sample_image from './public/sample.png';
 
 const server = Bun.serve({
     port: process.env.PORT || 8080,
@@ -108,7 +109,7 @@ const get_template_file = async (url: string, token?: string) => {
 }
 
 // 正则表达式匹配sample.doc[x]
-const docRe = new RegExp('.+/files/(.*\.docx?)')
+const docRe = new RegExp('.+/files/(.*\.docx?|.*\.png)')
 
 // send_sample_file 测试文件
 const send_template_file = (req: Bun.BunRequest) => {
@@ -126,6 +127,8 @@ const send_template_file = (req: Bun.BunRequest) => {
             return new Response(Bun.file(sample_docx));
         case "advanced.docx":
             return new Response(Bun.file(advanced_docx));
+        case "sample.png":
+            return new Response(Bun.file(sample_image));
     }
     return error_response({
         code: 404,

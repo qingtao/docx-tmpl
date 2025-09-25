@@ -4,7 +4,8 @@
     "": {
       "name": "docx-tmpl",
       "dependencies": {
-        "easy-template-x": "^7.0.1",
+        "docx-tmpl": ".",
+        "easy-template-x": "git+https://github.com/qingtao/easy-template-x#v7.0.1",
         "easy-template-x-angular-expressions": "0.2.2",
       },
       "devDependencies": {
@@ -32,7 +33,9 @@
 
     "csstype": ["csstype@3.1.3", "https://registry.npmmirror.com/csstype/-/csstype-3.1.3.tgz", {}, "sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw=="],
 
-    "easy-template-x": ["easy-template-x@7.0.1", "https://registry.npmmirror.com/easy-template-x/-/easy-template-x-7.0.1.tgz", { "dependencies": { "@xmldom/xmldom": "0.8.10", "json5": "2.2.3", "jszip": "3.10.1", "lodash.get": "4.4.2" } }, "sha512-RTQ/5GG8vAGUD9w49doAWXeKeBuXbzKCvvHh//j1JAgnxvyTCKvphGEba03Cqbux/5Xafc2E5lk5bdrmbE5a5A=="],
+    "docx-tmpl": ["docx-tmpl@file:", { "dependencies": { "easy-template-x": "^7.0.1", "easy-template-x-angular-expressions": "0.2.2" }, "devDependencies": { "@types/bun": "^1.2.22" }, "peerDependencies": { "typescript": "^5.9.2" } }],
+
+    "easy-template-x": ["easy-template-x@github:qingtao/easy-template-x#08d00ef", { "dependencies": { "@xmldom/xmldom": "0.8.10", "json5": "2.2.3", "jszip": "3.10.1", "lodash.get": "4.4.2" } }, "qingtao-easy-template-x-08d00ef"],
 
     "easy-template-x-angular-expressions": ["easy-template-x-angular-expressions@0.2.2", "https://registry.npmmirror.com/easy-template-x-angular-expressions/-/easy-template-x-angular-expressions-0.2.2.tgz", { "dependencies": { "angular-expressions": "1.4.3", "easy-template-x": "^6.0.0", "lodash.get": "4.4.2" } }, "sha512-Q7ZnfqLBHSaL355HfxLbLja6lbXi+ZN655pM/AUQm8RWm6ImuXTvGqdjzXYq/7PZwR48fqbpNZqmzKyUTT5VDQ=="],
 
@@ -67,6 +70,8 @@
     "undici-types": ["undici-types@6.21.0", "https://registry.npmmirror.com/undici-types/-/undici-types-6.21.0.tgz", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 
     "util-deprecate": ["util-deprecate@1.0.2", "https://registry.npmmirror.com/util-deprecate/-/util-deprecate-1.0.2.tgz", {}, "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw=="],
+
+    "docx-tmpl/easy-template-x": ["easy-template-x@7.0.1", "https://registry.npmmirror.com/easy-template-x/-/easy-template-x-7.0.1.tgz", { "dependencies": { "@xmldom/xmldom": "0.8.10", "json5": "2.2.3", "jszip": "3.10.1", "lodash.get": "4.4.2" } }, "sha512-RTQ/5GG8vAGUD9w49doAWXeKeBuXbzKCvvHh//j1JAgnxvyTCKvphGEba03Cqbux/5Xafc2E5lk5bdrmbE5a5A=="],
 
     "easy-template-x-angular-expressions/easy-template-x": ["easy-template-x@6.2.1", "https://registry.npmmirror.com/easy-template-x/-/easy-template-x-6.2.1.tgz", { "dependencies": { "@xmldom/xmldom": "0.8.10", "json5": "2.2.3", "jszip": "3.10.1", "lodash.get": "4.4.2" } }, "sha512-RBYhIlxl0z0Cd1vTYVh3AvMiFqYvSl1zAUnXk/Le0OHNTXgoyjiZlyFcyVmCj5SuWtElopj5AYbhW1B64SDpFw=="],
   }

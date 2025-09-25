@@ -17,7 +17,8 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "easy-template-x": "^7.0.1",
+    "docx-tmpl": ".",
+    "easy-template-x": "git+https://github.com/qingtao/easy-template-x#v7.0.1",
     "easy-template-x-angular-expressions": "0.2.2"
   }
 }
