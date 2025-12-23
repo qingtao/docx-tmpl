@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "docx-tmpl",
@@ -9,7 +10,7 @@
         "easy-template-x-angular-expressions": "0.2.2",
       },
       "devDependencies": {
-        "@types/bun": "^1.2.22",
+        "@types/bun": "^1.3.1",
       },
       "peerDependencies": {
         "typescript": "^5.9.2",
@@ -972,8 +973,6 @@
     "ajv-formats/ajv": ["ajv@8.17.1", "https://registry.npmmirror.com/ajv/-/ajv-8.17.1.tgz", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g=="],
 
     "ajv-keywords/ajv": ["ajv@8.17.1", "https://registry.npmmirror.com/ajv/-/ajv-8.17.1.tgz", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g=="],
-
-    "docx-tmpl/easy-template-x": ["easy-template-x@file:../easy-template-x", { "dependencies": { "@xmldom/xmldom": "0.8.10", "json5": "2.2.3", "jszip": "3.10.1", "lodash.get": "4.4.2" }, "devDependencies": { "@babel/core": "7.28.4", "@babel/preset-env": "7.28.3", "@babel/preset-typescript": "7.27.1", "@eslint/js": "9.35.0", "@rollup/plugin-alias": "5.1.1", "@rollup/plugin-replace": "6.0.2", "@types/babel__preset-env": "7.10.0", "@types/eslint__js": "8.42.3", "@types/jszip": "3.4.1", "@types/node": "24.3.1", "@vitest/ui": "2.1.8", "babel-loader": "10.0.0", "eslint": "9.35.0", "globals": "16.3.0", "lorem-ipsum": "2.0.8", "rimraf": "6.0.1", "rollup": "4.50.1", "rollup-plugin-auto-external": "2.0.0", "rollup-plugin-babel": "4.4.0", "rollup-plugin-node-resolve": "5.2.0", "typescript": "5.9.2", "typescript-eslint": "8.42.0", "vite-tsconfig-paths": "5.1.4", "vitest": "2.1.8" } }],
 
     "easy-template-x-angular-expressions/easy-template-x": ["easy-template-x@6.2.1", "https://registry.npmmirror.com/easy-template-x/-/easy-template-x-6.2.1.tgz", { "dependencies": { "@xmldom/xmldom": "0.8.10", "json5": "2.2.3", "jszip": "3.10.1", "lodash.get": "4.4.2" } }, "sha512-RBYhIlxl0z0Cd1vTYVh3AvMiFqYvSl1zAUnXk/Le0OHNTXgoyjiZlyFcyVmCj5SuWtElopj5AYbhW1B64SDpFw=="],
 

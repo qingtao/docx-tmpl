@@ -4,13 +4,29 @@
 
 本服务基于[easy-template-x]文档模板功能，使用[Bun]编译成独立的可执行文件；
 
-1. 安装依赖
+1. 下载`esay-template-x`源码
+
+在本项目同一级目录下clone(或者更新)[easy-template-x]源码
 
 ```bash
+git clone https://git.dev.local/hg/easy-template-x.git
+```
+
+```bash
+ls -l
+
+drwxrwxr-x  10 user01 user01  20 2025-12-23T15:09:25 docx-tmpl
+drwxrwxr-x  12 user01 user01  27 2025-12-23T15:00:59 easy-template-x
+```
+
+2. 安装依赖
+
+```bash
+cd docx-tmpl
 bun install
 ```
 
-2. 运行
+3. 运行
 
 ```bash
 bun dev
@@ -51,12 +67,12 @@ PORT=8080 ./docx-tmpl
 - 请求方式: `POST`
 - 请求参数: `application/json`
 
-| 参数名称     | 参数类型 | 是否必填 | 参数描述                                                         |
-| :----------- | :------- | :------- | :--------------------------------------------------------------- |
-| template_url | string   | 是       | 模板文件地址, 必须以 `http://` 或 `https://` 开头                |
-| data         | object   | 是       | 文档数据, 必须是与模板变量匹配的 json 格式，参数以模板中使用为准 |
-| output_file  | string   | 是       | 输出文件名，必须以 `.docx` 结尾                                  |
-| template_token        | string   | 否       | 如果非空，服务请求模板文件时会通过请求头发送令牌,                                                                 |
+| 参数名称       | 参数类型 | 是否必填 | 参数描述                                                         |
+| :------------- | :------- | :------- | :--------------------------------------------------------------- |
+| template_url   | string   | 是       | 模板文件地址, 必须以 `http://` 或 `https://` 开头                |
+| data           | object   | 是       | 文档数据, 必须是与模板变量匹配的 json 格式，参数以模板中使用为准 |
+| output_file    | string   | 是       | 输出文件名，必须以 `.docx` 结尾                                  |
+| template_token | string   | 否       | 如果非空，服务请求模板文件时会通过请求头发送令牌,                |
 
 - 请求示例:
 
@@ -104,8 +120,5 @@ PORT=8080 ./docx-tmpl
 
 模板法参考 [easy-template-x]
 
-
-
-
 [bun]: https://bun.sh
-[easy-template-x]: https://github.com/alonrbar/easy-template-x
+[easy-template-x]: http://git.dev.local/hg/easy-template-x
