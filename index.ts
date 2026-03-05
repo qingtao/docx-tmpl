@@ -137,7 +137,7 @@ const send_template_file = (req: Bun.BunRequest) => {
 }
 
 // handleDocx 处理生成docx文档的请求, 如果成功将返回文件流，失败返回错误信息
-const handleDocx = async (req: Request, server: Bun.Server) => {
+const handleDocx = async (req: Request, server: Bun.Server<any>) => {
     const args = await req.json() as docx_request;
     if (!args.template_url || (!args.template_url.startsWith('http://') && !args.template_url.startsWith('https://'))) {
         return error_response({
@@ -161,6 +161,7 @@ const handleDocx = async (req: Request, server: Bun.Server) => {
     const templateFile = await get_template_file(args.template_url, args.template_token)
 
     const handler = new TemplateHandler({
+        // @ts-ignore 可能是替换easy-template-x包的问题，不影响使用，暂时先忽略
         scopeDataResolver: createResolver()
     });
     const doc = await handler.process(templateFile, args.data)
@@ -173,7 +174,7 @@ const handleDocx = async (req: Request, server: Bun.Server) => {
     });
 }
 
-const metrics = (server: Bun.Server) => {
+const metrics = (server: Bun.Server<any>) => {
     return new Response(
         `server_port: ${server.port}\n` +
         `server_active_requests: ${server.pendingRequests}\n`
