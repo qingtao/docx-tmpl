@@ -162,7 +162,12 @@ const handleDocx = async (req: Request, server: Bun.Server<any>) => {
 
     const handler = new TemplateHandler({
         // @ts-ignore 可能是替换easy-template-x包的问题，不影响使用，暂时先忽略
-        scopeDataResolver: createResolver()
+        scopeDataResolver: createResolver(),
+        delimiters: {
+            tagOptionsStart: '[[',
+            tagOptionsEnd: ']]'
+        }
+
     });
     const doc = await handler.process(templateFile, args.data)
     return new Response(doc, {
