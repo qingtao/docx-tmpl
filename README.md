@@ -122,3 +122,22 @@ PORT=8080 ./docx-tmpl
 
 [bun]: https://bun.sh
 [easy-template-x]: http://git.dev.local/hg/easy-template-x
+
+### 4. 注意事项
+
+
+- 我们修改了`delimiters`中有关tag选项的分隔符
+
+```js
+   const handler = new TemplateHandler({
+        // @ts-ignore 可能是替换easy-template-x包的问题，不影响使用，暂时先忽略
+        scopeDataResolver: createResolver(),
+        delimiters: {
+          // 默认时是'['
+            tagOptionsStart: '[[',
+          // 默认时是']'
+            tagOptionsEnd: ']]'
+        }
+
+    });
+```
