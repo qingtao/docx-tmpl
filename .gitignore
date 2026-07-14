@@ -1,9 +1,11 @@
-# dependencies (bun install)
+# deno vendor/lock (deno.lock 应提交，无需忽略)
+
+# node_modules (deno install 生成)
 node_modules
 
-# output
-out
-dist
+# output (仅忽略仓库根目录的构建产物，vendor/ 下的 dist 需入库)
+/out
+/dist
 *.tgz
 
 # code coverage
@@ -32,6 +34,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
-node_modules/**
 nohup*
 release/**

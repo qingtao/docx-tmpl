@@ -1,0 +1,24 @@
+{
+    "nodeModulesDir": "auto",
+    "imports": {
+        "easy-template-x": "./vendor/easy-template-x/index.mts",
+        "easy-template-x-angular-expressions": "npm:easy-template-x-angular-expressions@0.2.2",
+        "@xmldom/xmldom": "npm:@xmldom/xmldom@0.8.13",
+        "jszip": "npm:jszip@3.10.1",
+        "lodash.get": "npm:lodash.get@4.4.2",
+        "json5": "npm:json5@2.2.3"
+    },
+    "tasks": {
+        "dev": "deno run --watch --allow-net --allow-read --allow-env index.ts",
+        "start": "deno run --allow-net --allow-read --allow-env index.ts",
+        "build:prod": "deno compile --include ./public --allow-net --allow-read --allow-env --output dist/docx-tmpl index.ts",
+        "build:linux:arm64": "deno compile --include ./public --allow-net --allow-read --allow-env --target aarch64-unknown-linux-gnu --output dist/docx-tmpl-linux-arm64 index.ts",
+        "build:linux:amd64": "deno compile --include ./public --allow-net --allow-read --allow-env --target x86_64-unknown-linux-gnu --output dist/docx-tmpl-linux-amd64 index.ts",
+        "build:darwin:arm64": "deno compile --include ./public --allow-net --allow-read --allow-env --target aarch64-apple-darwin --output dist/docx-tmpl-darwin-arm64 index.ts"
+    },
+    "compilerOptions": {
+        "strict": true,
+        "skipLibCheck": true,
+        "types": ["deno.ns"]
+    }
+}

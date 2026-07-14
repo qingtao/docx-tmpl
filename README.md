@@ -2,48 +2,58 @@
 
 ## 开发指南
 
-本服务基于[easy-template-x]文档模板功能，使用[Bun]编译成独立的可执行文件；
+本服务基于[easy-template-x]文档模板功能，使用[Deno]编译成独立的可执行文件；
 
-1. 下载`esay-template-x`源码
+## 依赖说明
 
-在本项目同一级目录下clone(或者更新)[easy-template-x]源码
+- `easy-template-x` 为 [qingtao/easy-template-x]（上游 [alonrbar/easy-template-x] 的 fork，含我们的修改）的构建产物，已 **vendoring 在仓库的 `vendor/easy-template-x/` 目录**（含 `dist/` 构建产物与 `index.mts` 再导出模块），无需从任何仓库下载。
+- 其余 npm 依赖（`easy-template-x-angular-expressions` 及其传递依赖 `@xmldom/xmldom`、`jszip`、`lodash.get`、`json5`）由 Deno 从 **公共 npm 源** 解析，通过 `deno.json` 的 `imports` 与 `nodeModulesDir: auto` 管理，**不再依赖内部私有仓库**。
+- 首次运行/编译时 Deno 会自动拉取并缓存依赖；也可手动预拉取：
 
 ```bash
-git clone https://git.dev.local/hg/easy-template-x.git
+deno cache index.ts
 ```
 
-```bash
-ls -l
-
-drwxrwxr-x  10 user01 user01  20 2025-12-23T15:09:25 docx-tmpl
-drwxrwxr-x  12 user01 user01  27 2025-12-23T15:00:59 easy-template-x
-```
-
-2. 安装依赖
+## 运行
 
 ```bash
-cd docx-tmpl
-bun install
-```
-
-3. 运行
-
-```bash
-bun dev
+deno task dev
 ```
 
 ## 编译打包
 
 ```bash
-# 编译
-bun run build:prod
+# 编译（静态资源 public/ 会随 --include 嵌入二进制）
+deno task build:prod
 # linux/arm64
-bun run build:linux:arm64
+deno task build:linux:arm64
+# linux/amd64
+deno task build:linux:amd64
 # darwin/arm64
-bun run build:darwin:arm64
+deno task build:darwin:arm64
 ```
 
-编译成功后在 dist 目录下生成 `docx-templ` 文件
+编译成功后在 dist 目录下生成 `docx-tmpl` 文件
+
+## 备注
+
+### 更新 vendored 依赖
+
+`easy-template-x` 以源码构建产物形式 vendoring 在仓库内，fork 有更新时需手动重新构建并同步：
+
+```bash
+# 在 fork 仓库中
+yarn install && yarn build
+# 将新生成的 dist/ 复制覆盖到本项目的 vendor/easy-template-x/dist/
+cp -r <fork>/dist/* vendor/easy-template-x/dist/
+```
+
+其余 npm 依赖版本统一在 `deno.json` 的 `imports` 中管理，如需升级直接修改对应版本号即可。
+
+### 编辑器（VSCode）
+
+建议使用官方 Deno 扩展（`denoland.vscode-deno`），它会读取 `deno.json` 的 `imports` 映射与 `deno.ns` 类型。
+若编辑器中出现 “找不到名称 Deno” / “找不到模块 easy-template-x” 等类型报错，说明 Deno 语言服务未接管 `.ts` 文件：请重载 Deno 语言服务（命令面板执行 `Deno: Reload Language Server`），并禁用会抢占 `.ts` 检查的实验性 TypeScript 插件（如 tsgo 预览版）。可用 `deno check index.ts` / `deno lint index.ts` 在命令行验证，二者通过即代表代码本身无误。
 
 ## 运行服务
 
@@ -120,8 +130,9 @@ PORT=8080 ./docx-tmpl
 
 模板法参考 [easy-template-x]
 
-[bun]: https://bun.sh
-[easy-template-x]: http://git.dev.local/hg/easy-template-x
+[deno]: https://deno.com
+[easy-template-x]: https://github.com/qingtao/easy-template-x
+[alonrbar/easy-template-x]: https://github.com/alonrbar/easy-template-x
 
 ### 4. 注意事项
 

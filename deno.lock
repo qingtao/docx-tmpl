@@ -1,0 +1,136 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:@xmldom/xmldom@0.8.13": "0.8.13",
+    "npm:easy-template-x-angular-expressions@0.2.2": "0.2.2",
+    "npm:json5@2.2.3": "2.2.3",
+    "npm:jszip@3.10.1": "3.10.1",
+    "npm:lodash.get@4.4.2": "4.4.2"
+  },
+  "npm": {
+    "@xmldom/xmldom@0.8.10": {
+      "integrity": "sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==",
+      "deprecated": true,
+      "tarball": "https://registry.npmmirror.com/@xmldom/xmldom/-/xmldom-0.8.10.tgz"
+    },
+    "@xmldom/xmldom@0.8.13": {
+      "integrity": "sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==",
+      "tarball": "https://registry.npmmirror.com/@xmldom/xmldom/-/xmldom-0.8.13.tgz"
+    },
+    "angular-expressions@1.4.3": {
+      "integrity": "sha512-r7j+dqOuHy0OYiR5AazDixU/Us3TDN2FfuxGX4Dq6d61Y2MhBQHMdUNBfkkLPjDqVm2Is394h31gC3bcBwy9zw==",
+      "tarball": "https://registry.npmmirror.com/angular-expressions/-/angular-expressions-1.4.3.tgz"
+    },
+    "core-util-is@1.0.3": {
+      "integrity": "sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==",
+      "tarball": "https://registry.npmmirror.com/core-util-is/-/core-util-is-1.0.3.tgz"
+    },
+    "easy-template-x-angular-expressions@0.2.2": {
+      "integrity": "sha512-Q7ZnfqLBHSaL355HfxLbLja6lbXi+ZN655pM/AUQm8RWm6ImuXTvGqdjzXYq/7PZwR48fqbpNZqmzKyUTT5VDQ==",
+      "dependencies": [
+        "angular-expressions",
+        "easy-template-x",
+        "lodash.get"
+      ],
+      "tarball": "https://registry.npmmirror.com/easy-template-x-angular-expressions/-/easy-template-x-angular-expressions-0.2.2.tgz"
+    },
+    "easy-template-x@6.2.3": {
+      "integrity": "sha512-CHocKkc4ILAXUZ8Fr+qWhpm9Fo8QM4vXJhXclK+lDSGBlAVg5EhCJ/U89yLZXwdb3WbOc7DWE5gYYCtDH02hcQ==",
+      "dependencies": [
+        "@xmldom/xmldom@0.8.10",
+        "json5",
+        "jszip",
+        "lodash.get"
+      ],
+      "tarball": "https://registry.npmmirror.com/easy-template-x/-/easy-template-x-6.2.3.tgz"
+    },
+    "immediate@3.0.6": {
+      "integrity": "sha512-XXOFtyqDjNDAQxVfYxuF7g9Il/IbWmmlQg2MYKOH8ExIT1qg6xc4zyS3HaEEATgs1btfzxq15ciUiY7gjSXRGQ==",
+      "tarball": "https://registry.npmmirror.com/immediate/-/immediate-3.0.6.tgz"
+    },
+    "inherits@2.0.4": {
+      "integrity": "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==",
+      "tarball": "https://registry.npmmirror.com/inherits/-/inherits-2.0.4.tgz"
+    },
+    "isarray@1.0.0": {
+      "integrity": "sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==",
+      "tarball": "https://registry.npmmirror.com/isarray/-/isarray-1.0.0.tgz"
+    },
+    "json5@2.2.3": {
+      "integrity": "sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==",
+      "bin": true,
+      "tarball": "https://registry.npmmirror.com/json5/-/json5-2.2.3.tgz"
+    },
+    "jszip@3.10.1": {
+      "integrity": "sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==",
+      "dependencies": [
+        "lie",
+        "pako",
+        "readable-stream",
+        "setimmediate"
+      ],
+      "tarball": "https://registry.npmmirror.com/jszip/-/jszip-3.10.1.tgz"
+    },
+    "lie@3.3.0": {
+      "integrity": "sha512-UaiMJzeWRlEujzAuw5LokY1L5ecNQYZKfmyZ9L7wDHb/p5etKaxXhohBcrw0EYby+G/NA52vRSN4N39dxHAIwQ==",
+      "dependencies": [
+        "immediate"
+      ],
+      "tarball": "https://registry.npmmirror.com/lie/-/lie-3.3.0.tgz"
+    },
+    "lodash.get@4.4.2": {
+      "integrity": "sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==",
+      "deprecated": true,
+      "tarball": "https://registry.npmmirror.com/lodash.get/-/lodash.get-4.4.2.tgz"
+    },
+    "pako@1.0.11": {
+      "integrity": "sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==",
+      "tarball": "https://registry.npmmirror.com/pako/-/pako-1.0.11.tgz"
+    },
+    "process-nextick-args@2.0.1": {
+      "integrity": "sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==",
+      "tarball": "https://registry.npmmirror.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz"
+    },
+    "readable-stream@2.3.8": {
+      "integrity": "sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==",
+      "dependencies": [
+        "core-util-is",
+        "inherits",
+        "isarray",
+        "process-nextick-args",
+        "safe-buffer",
+        "string_decoder",
+        "util-deprecate"
+      ],
+      "tarball": "https://registry.npmmirror.com/readable-stream/-/readable-stream-2.3.8.tgz"
+    },
+    "safe-buffer@5.1.2": {
+      "integrity": "sha512-Gd2UZBJDkXlY7GbJxfsE8/nvKkUEU1G38c1siN6QP6a9PT9MmHB8GnpscSmMJSoF8LOIrt8ud/wPtojys4G6+g==",
+      "tarball": "https://registry.npmmirror.com/safe-buffer/-/safe-buffer-5.1.2.tgz"
+    },
+    "setimmediate@1.0.5": {
+      "integrity": "sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==",
+      "tarball": "https://registry.npmmirror.com/setimmediate/-/setimmediate-1.0.5.tgz"
+    },
+    "string_decoder@1.1.1": {
+      "integrity": "sha512-n/ShnvDi6FHbbVfviro+WojiFzv+s8MPMHBczVePfUpDJLwoLT0ht1l4YwBCbi8pJAveEEdnkHyPyTP/mzRfwg==",
+      "dependencies": [
+        "safe-buffer"
+      ],
+      "tarball": "https://registry.npmmirror.com/string_decoder/-/string_decoder-1.1.1.tgz"
+    },
+    "util-deprecate@1.0.2": {
+      "integrity": "sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==",
+      "tarball": "https://registry.npmmirror.com/util-deprecate/-/util-deprecate-1.0.2.tgz"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:@xmldom/xmldom@0.8.13",
+      "npm:easy-template-x-angular-expressions@0.2.2",
+      "npm:json5@2.2.3",
+      "npm:jszip@3.10.1",
+      "npm:lodash.get@4.4.2"
+    ]
+  }
+}
