@@ -2,8 +2,8 @@
 
 var xmldom = require('@xmldom/xmldom');
 var JSZip = require('jszip');
-var getProp = require('lodash.get');
 var JSON5 = require('json5');
+var getProp = require('lodash.get');
 
 class InternalError extends Error {
   constructor(message) {
@@ -66,9 +66,10 @@ class TemplateDataError extends Error {
 }
 
 class UnclosedTagError extends TemplateSyntaxError {
-  constructor(tagName) {
-    super(`Tag '${tagName}' is never closed.`);
+  constructor(tagName, tagRawText) {
+    super(`Tag ${tagRawText} is never closed.`);
     this.tagName = tagName;
+    this.tagRawText = tagRawText;
   }
 }
 
@@ -88,9 +89,10 @@ class UnknownContentTypeError extends TemplateDataError {
 }
 
 class UnopenedTagError extends TemplateSyntaxError {
-  constructor(tagName) {
-    super(`Tag '${tagName}' is closed but was never opened.`);
+  constructor(tagName, tagRawText) {
+    super(`Tag ${tagRawText} is closed but was never opened.`);
     this.tagName = tagName;
+    this.tagRawText = tagRawText;
   }
 }
 
@@ -801,13 +803,13 @@ let Query$1 = class Query {
   siblingsInRange(firstNode, lastNode) {
     if (!firstNode) throw new InternalArgumentMissingError("firstNode");
     if (!lastNode) throw new InternalArgumentMissingError("lastNode");
+    if (firstNode.parentNode !== lastNode.parentNode) throw new Error(`Nodes are not siblings: '${firstNode.nodeName}' and '${lastNode.nodeName}'.`);
     const range = [];
     let curNode = firstNode;
     while (curNode && curNode !== lastNode) {
       range.push(curNode);
       curNode = curNode.nextSibling;
     }
-    if (!curNode) throw new Error('Nodes are not siblings.');
     range.push(lastNode);
     return range;
   }
@@ -959,6 +961,9 @@ let Modify$1 = class Modify {
    * Return the removed nodes.
    */
   removeSiblings(from, to) {
+    if (!from) throw new InternalArgumentMissingError("from");
+    if (!to) throw new InternalArgumentMissingError("to");
+    if (from.parentNode !== to.parentNode) throw new Error(`Nodes are not siblings: '${from.nodeName}' and '${to.nodeName}'.`);
     if (from === to) return [];
     const removed = [];
     let lastRemoved;
@@ -2288,6 +2293,12 @@ class Modify {
     }
   }
   setSpacePreserveAttribute(node) {
+    // The xml:space attribute is only relevant for WordprocessingML text
+    // nodes. DrawingML text nodes (a:t) do not accept any attributes and
+    // preserve whitespace by default.
+    if (node.nodeName !== OmlNode.W.Text) {
+      return;
+    }
     if (!node.attributes) {
       node.attributes = {};
     }
@@ -3357,9 +3368,14 @@ class LoopListStrategy {
   splitBefore(openTag, closeTag) {
     const firstParagraph = officeMarkup.query.containingParagraphNode(openTag.xmlTextNode);
     const lastParagraph = officeMarkup.query.containingParagraphNode(closeTag.xmlTextNode);
+
+    // Make sure the paragraphs are siblings
+    if (firstParagraph.parentNode !== lastParagraph.parentNode) {
+      throw new TemplateSyntaxError(`Open and close tags are not in the same container: ${openTag.rawText} and ${closeTag.rawText}. For example, one is inside a table cell and the other is not.`);
+    }
     const paragraphsToRepeat = xml.query.siblingsInRange(firstParagraph, lastParagraph);
 
-    // remove the loop tags
+    // Remove the loop tags
     xml.modify.remove(openTag.xmlTextNode);
     xml.modify.remove(closeTag.xmlTextNode);
     return {
@@ -3375,7 +3391,7 @@ class LoopListStrategy {
       }
     }
 
-    // remove the old paragraphs
+    // Remove the old paragraphs
     xml.modify.remove(firstParagraph);
     if (firstParagraph !== lastParagraphs) {
       xml.modify.remove(lastParagraphs);
@@ -3410,6 +3426,11 @@ class LoopParagraphStrategy {
   splitBefore(openTag, closeTag) {
     const firstParagraph = officeMarkup.query.containingParagraphNode(openTag.xmlTextNode);
     const lastParagraph = officeMarkup.query.containingParagraphNode(closeTag.xmlTextNode);
+
+    // Make sure the paragraphs are siblings.
+    if (firstParagraph.parentNode !== lastParagraph.parentNode) {
+      throw new TemplateSyntaxError(`Open and close tags are not in the same container: ${openTag.rawText} and ${closeTag.rawText}. For example, one is inside a table cell and the other is not.`);
+    }
     const paragraphsToRepeat = xml.query.siblingsInRange(firstParagraph, lastParagraph);
 
     // Remove the loop tags.
@@ -3467,6 +3488,11 @@ class LoopContentStrategy {
     let firstParagraph = officeMarkup.query.containingParagraphNode(openTag.xmlTextNode);
     let lastParagraph = officeMarkup.query.containingParagraphNode(closeTag.xmlTextNode);
     const areSame = firstParagraph === lastParagraph;
+
+    // Make sure the paragraphs are siblings
+    if (firstParagraph.parentNode !== lastParagraph.parentNode) {
+      throw new TemplateSyntaxError(`Open and close tags are not in the same container: ${openTag.rawText} and ${closeTag.rawText}. For example, one is inside a table cell and the other is not.`);
+    }
 
     // Split first paragraph
     const removeTextNode = true;
@@ -4194,13 +4220,15 @@ class ChartColors {
       return;
     }
     const root = await colorsPart.xmlRoot();
-    const accents = root.childNodes?.filter(child => child.nodeName === "a:schemeClr")?.map(node => node.attributes["val"]);
-    const variations = root.childNodes?.filter(child => child.nodeName === "cs:variation")?.map(node => {
+    const rootGenChildren = root.childNodes?.filter(xml.query.isGeneralNode);
+    const accents = rootGenChildren?.filter(child => child.nodeName === "a:schemeClr")?.map(node => node.attributes["val"]);
+    const variations = rootGenChildren?.filter(child => child.nodeName === "cs:variation")?.map(node => {
       if (!node.childNodes?.length) {
         return null;
       }
-      const lumModNode = node.childNodes.find(n => n.nodeName === "a:lumMod");
-      const lumOffNode = node.childNodes.find(n => n.nodeName === "a:lumOff");
+      const nodeGenChildren = node.childNodes?.filter(xml.query.isGeneralNode);
+      const lumModNode = nodeGenChildren?.find(n => n.nodeName === "a:lumMod");
+      const lumOffNode = nodeGenChildren?.find(n => n.nodeName === "a:lumOff");
       return {
         lumMod: lumModNode?.attributes["val"],
         lumOff: lumOffNode?.attributes["val"]
@@ -4360,7 +4388,8 @@ function readSingleSeries(seriesNode, chartData) {
   return {
     sheetName,
     shapePropertiesMarkup: xml.parser.serializeNode(shapeProperties),
-    chartSpecificMarkup: chartSpecificMarkup(seriesNode),
+    preValuesMarkup: preValuesMarkup(seriesNode),
+    postValuesMarkup: postValuesMarkup(seriesNode),
     categoriesMarkup: categoriesMarkup(chartData, sheetName, formatCode),
     chartExtensibilityMarkup: xml.parser.serializeNode(chartExtensibility)
   };
@@ -4484,35 +4513,54 @@ function scatterXValuesMarkup(chartData, sheetName) {
         </c:xVal>
     `;
 }
-function chartSpecificMarkup(firstSeries) {
+
+/**
+ * Series elements that appear between the shape properties and the categories
+ * (or x values), in schema order.
+ *
+ * Covers the relevant parts of CT_AreaSer, CT_BarSer, CT_LineSer, CT_PieSer,
+ * CT_ScatterSer and CT_BubbleSer. Word rejects the document as corrupted when
+ * these elements are out of order.
+ */
+function preValuesMarkup(firstSeries) {
   if (!firstSeries) {
     return "";
   }
+  const invertIfNegative = firstSeries.childNodes?.find(child => child.nodeName === "c:invertIfNegative");
   const pictureOptions = firstSeries.childNodes?.find(child => child.nodeName === "c:pictureOptions");
+  const explosion = firstSeries.childNodes?.find(child => child.nodeName === "c:explosion");
+  const marker = firstSeries.childNodes?.find(child => child.nodeName === "c:marker");
+  const dPt = firstSeries.childNodes?.filter(child => child.nodeName === "c:dPt");
   const dLbls = firstSeries.childNodes?.find(child => child.nodeName === "c:dLbls");
   const trendline = firstSeries.childNodes?.find(child => child.nodeName === "c:trendline");
   const errBars = firstSeries.childNodes?.find(child => child.nodeName === "c:errBars");
-  const invertIfNegative = firstSeries.childNodes?.find(child => child.nodeName === "c:invertIfNegative");
-  const marker = firstSeries.childNodes?.find(child => child.nodeName === "c:marker");
-  const smooth = firstSeries.childNodes?.find(child => child.nodeName === "c:smooth");
-  const explosion = firstSeries.childNodes?.find(child => child.nodeName === "c:explosion");
-  const dPt = firstSeries.childNodes?.filter(child => child.nodeName === "c:dPt");
-  const firstSliceAngle = firstSeries.childNodes?.find(child => child.nodeName === "c:firstSliceAngle");
-  const holeSize = firstSeries.childNodes?.find(child => child.nodeName === "c:holeSize");
-  const serTx = firstSeries.childNodes?.find(child => child.nodeName === "c:serTx");
   return `
+        ${xml.parser.serializeNode(invertIfNegative)}
         ${xml.parser.serializeNode(pictureOptions)}
+        ${xml.parser.serializeNode(explosion)}
+        ${xml.parser.serializeNode(marker)}
+        ${dPt.map(dPt => xml.parser.serializeNode(dPt)).join("\n")}
         ${xml.parser.serializeNode(dLbls)}
         ${xml.parser.serializeNode(trendline)}
         ${xml.parser.serializeNode(errBars)}
-        ${xml.parser.serializeNode(invertIfNegative)}
-        ${xml.parser.serializeNode(marker)}
+    `;
+}
+
+/**
+ * Series elements that appear between the values and the chart extensibility
+ * element, in schema order.
+ */
+function postValuesMarkup(firstSeries) {
+  if (!firstSeries) {
+    return "";
+  }
+  const shape = firstSeries.childNodes?.find(child => child.nodeName === "c:shape");
+  const bubble3D = firstSeries.childNodes?.find(child => child.nodeName === "c:bubble3D");
+  const smooth = firstSeries.childNodes?.find(child => child.nodeName === "c:smooth");
+  return `
+        ${xml.parser.serializeNode(shape)}
+        ${xml.parser.serializeNode(bubble3D)}
         ${xml.parser.serializeNode(smooth)}
-        ${xml.parser.serializeNode(explosion)}
-        ${dPt.map(dPt => xml.parser.serializeNode(dPt)).join("\n")}
-        ${xml.parser.serializeNode(firstSliceAngle)}
-        ${xml.parser.serializeNode(holeSize)}
-        ${xml.parser.serializeNode(serTx)}
     `;
 }
 
@@ -4521,20 +4569,31 @@ function chartSpecificMarkup(firstSeries) {
 //
 
 function updateInlineSeries(existingChart, chartData) {
+  // The schema requires series to appear before elements like c:dLbls and
+  // c:axId, so the new series are inserted where the old series were.
+  const firstSeriesIndex = (existingChart.chartNode.childNodes ?? []).findIndex(child => child.nodeName === "c:ser");
+
   // Remove all old series
   xml.modify.removeChildren(existingChart.chartNode, child => child.nodeName === "c:ser");
 
   // Create new series
   const newSeries = chartData.series.map((s, index) => createSeries(existingChart, s.name, index, chartData));
+
+  // Insert new series
+  let insertIndex = firstSeriesIndex;
+  if (insertIndex < 0) {
+    insertIndex = (existingChart.chartNode.childNodes ?? []).length;
+  }
   for (const series of newSeries) {
-    xml.modify.appendChild(existingChart.chartNode, series);
+    xml.modify.insertChild(existingChart.chartNode, series, insertIndex);
+    insertIndex++;
   }
 }
 function createSeries(existingChart, seriesName, seriesIndex, chartData) {
   const firstSeries = existingChart.series[0];
   const isNewSeries = !existingChart.series[seriesIndex];
   const existingSeries = existingChart.series[seriesIndex] ?? firstSeries;
-  const title = titleMarkup(seriesName, seriesIndex, existingSeries?.sheetName);
+  const title = titleMarkup(seriesName, seriesIndex, chartData, existingSeries?.sheetName);
   const values = valuesMarkup(seriesIndex, chartData, existingSeries?.sheetName);
   const series = parseXmlNode(`
         <c:ser>
@@ -4542,9 +4601,10 @@ function createSeries(existingChart, seriesName, seriesIndex, chartData) {
             <c:order val="${seriesIndex}"/>
             ${title}
             ${existingSeries?.shapePropertiesMarkup ?? ""}
-            ${existingSeries?.chartSpecificMarkup ?? ""}
+            ${existingSeries?.preValuesMarkup ?? ""}
             ${existingSeries?.categoriesMarkup ?? ""}
             ${values}
+            ${existingSeries?.postValuesMarkup ?? ""}
             ${existingSeries?.chartExtensibilityMarkup ?? ""}
         </c:ser>
     `);
@@ -4552,7 +4612,7 @@ function createSeries(existingChart, seriesName, seriesIndex, chartData) {
   existingChart.colors.setSeriesColor(existingChart.chartType, series, isNewSeries, color);
   return series;
 }
-function titleMarkup(seriesName, seriesIndex, sheetName) {
+function titleMarkup(seriesName, seriesIndex, chartData, sheetName) {
   if (!sheetName) {
     return `
             <c:tx>
@@ -4560,7 +4620,7 @@ function titleMarkup(seriesName, seriesIndex, sheetName) {
             </c:tx>
         `;
   }
-  const formula = `${sheetName}!$${excelColumnId(seriesIndex + 1)}$1`;
+  const formula = `${sheetName}!$${excelColumnId(seriesFirstColumnIndex(seriesIndex, chartData))}$1`;
   return `
         <c:tx>
             <c:strRef>
@@ -4638,13 +4698,13 @@ function scatterValuesMarkup(seriesIndex, chartData, sheetName) {
   });
 
   // Bubble size values
-  const bubbleSizeNodes = isBubbleChartData(chartData) ? chartData.series[seriesIndex].values.map((v, index) => {
-    if (v.size === null || v.size === undefined) {
+  const bubbleSizeNodes = isBubbleChartData(chartData) ? bubbleSizeValues(xValues, chartData.series[seriesIndex]).map((size, index) => {
+    if (size === null || size === undefined) {
       return "";
     }
     return `
             <c:pt idx="${index}">
-                <c:v>${v.size}</c:v>
+                <c:v>${size}</c:v>
             </c:pt>
         `;
   }) : [];
@@ -4678,7 +4738,7 @@ function scatterValuesMarkup(seriesIndex, chartData, sheetName) {
 
   // Number reference
 
-  const yValColumnId = excelColumnId(seriesIndex + 1);
+  const yValColumnId = excelColumnId(seriesFirstColumnIndex(seriesIndex, chartData));
   const yValFormula = `${sheetName}!$${yValColumnId}$2:$${yValColumnId}$${yValues.length + 1}`;
   const yVal = `
         <c:yVal>
@@ -4695,7 +4755,7 @@ function scatterValuesMarkup(seriesIndex, chartData, sheetName) {
   if (!isBubbleChartData(chartData)) {
     return yVal;
   }
-  const bubbleSizeColumnId = excelColumnId(seriesIndex + 2);
+  const bubbleSizeColumnId = excelColumnId(seriesFirstColumnIndex(seriesIndex, chartData) + 1);
   const bubbleSizeFormula = `${sheetName}!$${bubbleSizeColumnId}$2:$${bubbleSizeColumnId}$${yValues.length + 1}`;
   const bubbleSize = `
         <c:bubbleSize>
@@ -4713,6 +4773,24 @@ function scatterValuesMarkup(seriesIndex, chartData, sheetName) {
         ${yVal}
         ${bubbleSize}
     `;
+}
+
+/**
+ * The worksheet column index (zero based, where column zero holds the
+ * categories or x values) of the first column of the given series. Bubble
+ * chart series occupy two columns each (y values and bubble sizes), all other
+ * chart types occupy a single column per series.
+ */
+function seriesFirstColumnIndex(seriesIndex, chartData) {
+  return isBubbleChartData(chartData) ? seriesIndex * 2 + 1 : seriesIndex + 1;
+}
+
+/**
+ * The total number of worksheet columns, including the first column which
+ * holds the categories or x values.
+ */
+function totalColumnsCount(chartData) {
+  return isBubbleChartData(chartData) ? chartData.series.length * 2 + 1 : chartData.series.length + 1;
 }
 function selectSeriesColor(seriesIndex, chartData) {
   // Use manual hex color
@@ -4911,7 +4989,7 @@ async function updateSheetRootScatter(workbookPart, sheetRoot, chartData, shared
         `;
   });
   const firstRow = `
-        <row r="1" spans="1:${chartData.series.length + 1}">
+        <row r="1" spans="1:${totalColumnsCount(chartData)}">
             <c r="A1" t="s">
                 <v>${sharedStrings[xValuesTitle]}</v>
             </c>
@@ -4921,24 +4999,26 @@ async function updateSheetRootScatter(workbookPart, sheetRoot, chartData, shared
   const xValues = scatterXValues(chartData.series);
 
   // Create other rows
+  function numericCellMarkup(rowIndex, columnIndex, value) {
+    if (value === null || value === undefined) {
+      return `<c r="${excelRowAndColumnId(rowIndex, columnIndex)}"/>`;
+    }
+    return `
+            <c r="${excelRowAndColumnId(rowIndex, columnIndex)}">
+                <v>${value}</v>
+            </c>
+        `;
+  }
   const yValues = chartData.series.map(s => scatterYValues(xValues, s));
   const bubbleSizes = isBubbleChart ? chartData.series.map(s => bubbleSizeValues(xValues, s)) : [];
   function otherRowColumns(rowIndex) {
     return chartData.series.map((s, seriesIndex) => {
       const baseIndex = isBubbleChart ? seriesIndex * 2 : seriesIndex;
-      const yValueColumn = `
-                <c r="${excelRowAndColumnId(rowIndex + 1, baseIndex + 1)}">
-                    <v>${yValues[seriesIndex][rowIndex]}</v>
-                </c>
-            `;
+      const yValueColumn = numericCellMarkup(rowIndex + 1, baseIndex + 1, yValues[seriesIndex][rowIndex]);
       if (!isBubbleChart) {
         return yValueColumn;
       }
-      const bubbleSizeColumn = `
-                <c r="${excelRowAndColumnId(rowIndex + 1, baseIndex + 2)}" t="s">
-                    <v>${bubbleSizes[seriesIndex][rowIndex]}</v>
-                </c>
-            `;
+      const bubbleSizeColumn = numericCellMarkup(rowIndex + 1, baseIndex + 2, bubbleSizes[seriesIndex][rowIndex]);
       return `
                 ${yValueColumn}
                 ${bubbleSizeColumn}
@@ -4946,7 +5026,7 @@ async function updateSheetRootScatter(workbookPart, sheetRoot, chartData, shared
     });
   }
   const otherRows = xValues.map((x, rowIndex) => `
-        <row r="${rowIndex + 2}" spans="1:${chartData.series.length + 1}">
+        <row r="${rowIndex + 2}" spans="1:${totalColumnsCount(chartData)}">
             <c r="${excelRowAndColumnId(rowIndex + 1, 0)}">
                 <v>${x}</v>
             </c>
@@ -4963,7 +5043,7 @@ async function updateTablePart(sheetPart, chartData) {
 
   // Update ref attribute
   const tablePartRoot = await tablePart.xmlRoot();
-  tablePartRoot.attributes["ref"] = `A1:${excelRowAndColumnId(tableRowsCount(chartData), chartData.series.length)}`;
+  tablePartRoot.attributes["ref"] = `A1:${excelRowAndColumnId(tableRowsCount(chartData), totalColumnsCount(chartData) - 1)}`;
 
   // Find old table columns
   const tableColumnsNode = tablePartRoot.childNodes?.find(child => child.nodeName === "tableColumns");
@@ -4980,7 +5060,7 @@ async function updateTablePart(sheetPart, chartData) {
         `;
   });
   const tableColumns = `
-        <tableColumns count="${chartData.series.length + 1}">
+        <tableColumns count="${totalColumnsCount(chartData)}">
             <tableColumn id="1" name="${firstColumnName}"/>
             ${otherColumns.join("\n")}
         </tableColumns>
@@ -5123,24 +5203,34 @@ function updateTitle(tag, newTitle) {
 
   // Split the run if needed.
   // Chart title run node can only have one text node
-  const curRun = officeMarkup.query.containingRunNode(newWordTextNode);
-  const runTextNodes = curRun.childNodes.filter(node => officeMarkup.query.isTextNode(node));
+  const originalRun = officeMarkup.query.containingRunNode(newWordTextNode);
+  const runTextNodes = originalRun.childNodes.filter(node => officeMarkup.query.isTextNode(node));
   if (runTextNodes.length > 1) {
-    // Remove the last text node
-    const lastTextNode = runTextNodes[runTextNodes.length - 1];
-    xml.modify.remove(lastTextNode);
+    // Get all non-empty text nodes
+    const nonEmptyTextNodes = runTextNodes.filter(node => !officeMarkup.query.isEmptyTextNode(node));
 
-    // Create a new run
-    const newRun = xml.create.cloneNode(curRun, true);
-    for (const node of newRun.childNodes) {
-      if (officeMarkup.query.isTextNode(node)) {
-        xml.modify.remove(node);
-      }
+    // Clear the run
+    for (const textNode of runTextNodes) {
+      xml.modify.remove(textNode);
     }
-    xml.modify.insertAfter(newRun, curRun);
 
-    // Add the text node to the new run
-    xml.modify.appendChild(newRun, lastTextNode);
+    // Create one run per text node
+    const emptyRun = xml.create.cloneNode(originalRun, true);
+    let curRun = originalRun;
+    let prevRun = originalRun;
+    for (const textNode of nonEmptyTextNodes) {
+      // Add one text node to the current run
+      xml.modify.appendChild(curRun, textNode);
+
+      // Insert the current run after the previous run
+      if (curRun !== prevRun) {
+        xml.modify.insertAfter(curRun, prevRun);
+      }
+
+      // Advance the loop variables
+      prevRun = curRun;
+      curRun = xml.create.cloneNode(emptyRun, true);
+    }
   }
 }
 function chartHasData(content) {
@@ -5257,13 +5347,13 @@ class TemplateCompiler {
           // As long as we don't change the input to
           // this method (fromIndex in particular) this
           // should never happen.
-          throw new UnopenedTagError(tag.name);
+          throw new UnopenedTagError(tag.name, tag.rawText);
         }
         continue;
       }
     }
     if (i === tags.length) {
-      throw new UnclosedTagError(openTag.name);
+      throw new UnclosedTagError(openTag.name, openTag.rawText);
     }
     return i;
   }
@@ -5331,7 +5421,7 @@ class TemplateHandler {
   /**
    * Version number of the `easy-template-x` library.
    */
-  version = "7.2.5" ;
+  version = "7.2.8" ;
   constructor(options) {
     this.options = new TemplateHandlerOptions(options);
     const delimiters = this.options.delimiters;
