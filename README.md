@@ -6,7 +6,7 @@
 
 ## 依赖说明
 
-- `easy-template-x` 为 [qingtao/easy-template-x]（上游 [alonrbar/easy-template-x] 的 fork，含我们的修改）的构建产物，已 **vendoring 在仓库的 `vendor/easy-template-x/` 目录**（含 `dist/` 构建产物与 `index.mts` 再导出模块），无需从任何仓库下载。
+- `easy-template-x` 为 [qingtao/easy-template-x]（上游 [alonrbar/easy-template-x] 的 fork，包含接受`base64`字符串的图片内容的修改）的构建产物，已 **vendoring 在仓库的 `vendor/easy-template-x/` 目录**（含 `dist/` 构建产物与 `index.mts` 再导出模块），无需从任何仓库下载。
 - 其余 npm 依赖（`easy-template-x-angular-expressions` 及其传递依赖 `@xmldom/xmldom`、`jszip`、`lodash.get`、`json5`）由 Deno 从 **公共 npm 源** 解析，通过 `deno.json` 的 `imports` 与 `nodeModulesDir: auto` 管理，**不再依赖内部私有仓库**。
 - 首次运行/编译时 Deno 会自动拉取并缓存依赖；也可手动预拉取：
 
@@ -92,7 +92,12 @@ PORT=8080 ./docx-tmpl
     "data": {
         "name": "John Doe",
         "age": 30,
-        "address": " Main St"
+        "address": " Main St",
+        "profile_image": {
+          "_type": "image",
+          "format": "image/png",
+          "source": "data:image/png;base64,iV..."
+        }
     },
     "output_file": "output导出文件.docx",
     "template_token": "TOKEN"
