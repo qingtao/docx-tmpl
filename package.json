@@ -1,5 +1,30 @@
 {
     "name": "docx-tmpl",
+    "version": "1.0.0",
+    "private": true,
     "type": "module",
-    "private": true
+    "scripts": {
+        "dev": "bun --watch index.ts",
+        "start": "bun index.ts",
+        "check": "tsc --noEmit",
+        "build:prod": "bun build --compile --asset ./public --outfile dist/docx-tmpl index.ts",
+        "build:linux:arm64": "bun build --compile --asset ./public --target=bun-linux-arm64 --outfile dist/docx-tmpl-linux-arm64 index.ts",
+        "build:linux:amd64": "bun build --compile --asset ./public --target=bun-linux-x64 --outfile dist/docx-tmpl-linux-amd64 index.ts",
+        "build:darwin:arm64": "bun build --compile --asset ./public --target=bun-darwin-arm64 --outfile dist/docx-tmpl-darwin-arm64 index.ts"
+    },
+    "dependencies": {
+        "@xmldom/xmldom": "0.8.13",
+        "easy-template-x": "file:./vendor/easy-template-x",
+        "easy-template-x-angular-expressions": "0.2.2",
+        "json5": "2.2.3",
+        "jszip": "3.10.1",
+        "lodash.get": "4.4.2"
+    },
+    "overrides": {
+        "easy-template-x": "file:./vendor/easy-template-x"
+    },
+    "devDependencies": {
+        "@types/bun": "^1.4.4",
+        "typescript": "^5.9.2"
+    }
 }

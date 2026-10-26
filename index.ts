@@ -1,55 +1,17 @@
-///
 import { type TemplateData, TemplateHandler } from "easy-template-x";
 import { createResolver } from "easy-template-x-angular-expressions";
 
-const publicURL = (file: string) =>
-  new URL("./public/" + file, import.meta.url);
+const DOCX_MIME =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
-// serveStatic 以流式方式返回 public 目录下的静态文件，并显式设置 Content-Type
-const serveStatic = async (path: string, contentType: string) => {
-  try {
-    const file = await Deno.open(publicURL(path), { read: true });
-    return new Response(file.readable, {
-      headers: { "Content-Type": contentType },
-    });
-  } catch {
-    return error_response({ code: 404, message: "文件不存在" });
-  }
-};
-
-const port = Number(Deno.env.get("PORT") ?? "8080");
+const port = Number(process.env.PORT ?? "8080");
 let activeRequests = 0;
 
-const _server = Deno.serve({ port, onError }, async (req: Request) => {
-  activeRequests++;
-  try {
-    return await route(req);
-  } finally {
-    activeRequests--;
-  }
-});
-
-function onError(error: unknown) {
-  const err = error as Error;
-  console.warn("[WARN] 请求发生错误", err?.message, err?.cause);
-  return error_response({
-    code: 500,
-    message: err?.message,
-    template_error: err?.cause,
-  });
+interface api_response {
+  code: number;
+  message: string;
+  template_error?: unknown;
 }
-
-const docx_cors = (_req: Request) => {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST,OPTIONS",
-      "Access-Control-Max-Age": "86400",
-      "Access-Control-Allow-Headers": "*",
-    },
-  });
-};
 
 // DocxRequest 请求生成文档的参数
 interface docx_request {
@@ -62,19 +24,6 @@ interface docx_request {
   // 令牌， 请求文件时使用 Authorization: Bearer ${token}头部和template_url指定的文件地址
   template_token?: string;
 }
-
-interface api_response {
-  code: number;
-  message: string;
-  template_error?: unknown;
-}
-
-const not_found = () => {
-  return error_response({
-    code: 404,
-    message: "Not Found",
-  });
-};
 
 const error_response = (res: api_response) => {
   let status = 200;
@@ -91,6 +40,27 @@ const error_response = (res: api_response) => {
     },
   });
   return resp;
+};
+
+const not_found = () => {
+  return error_response({
+    code: 404,
+    message: "Not Found",
+  });
+};
+
+// public 目录下的文件在开发时从磁盘读取，编译（--asset ./public）后从可执行文件内嵌资源读取
+const publicPath = (file: string) => `${import.meta.dir}/public/${file}`;
+
+// serveStatic 以流式方式返回 public 目录下的静态文件，并显式设置 Content-Type
+const serveStatic = async (file: string, contentType: string) => {
+  const f = Bun.file(publicPath(file));
+  if (!(await f.exists())) {
+    return error_response({ code: 404, message: "文件不存在" });
+  }
+  return new Response(f, {
+    headers: { "Content-Type": contentType },
+  });
 };
 
 const get_template_file = (url: string, token?: string) => {
@@ -111,6 +81,18 @@ const get_template_file = (url: string, token?: string) => {
   });
 };
 
+const docx_cors = (_req: Request) => {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST,OPTIONS",
+      "Access-Control-Max-Age": "86400",
+      "Access-Control-Allow-Headers": "*",
+    },
+  });
+};
+
 // 正则表达式匹配sample.doc[x]
 const docRe = new RegExp(".+/files/(.*\\.docx?|.*\\.png)");
 
@@ -125,15 +107,9 @@ const send_template_file = (req: Request) => {
   }
   switch (filename) {
     case "sample.docx":
-      return serveStatic(
-        "sample.docx",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      );
+      return serveStatic("sample.docx", DOCX_MIME);
     case "advanced.docx":
-      return serveStatic(
-        "advanced.docx",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      );
+      return serveStatic("advanced.docx", DOCX_MIME);
     case "sample.png":
       return serveStatic("profile.png", "image/png");
   }
@@ -175,7 +151,6 @@ const handleDocx = async (req: Request) => {
   );
 
   const handler = new TemplateHandler({
-    // @ts-ignore 可能是替换easy-template-x包的问题，不影响使用，暂时先忽略
     scopeDataResolver: createResolver(),
     delimiters: {
       tagOptionsStart: "[[",
@@ -186,8 +161,7 @@ const handleDocx = async (req: Request) => {
   return new Response(doc, {
     headers: {
       "Origin": req.headers.get("host") || "*",
-      "Content-Type":
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "Content-Type": DOCX_MIME,
       "Content-Disposition": `attachment; filename*=UTF-8''${
         encodeURIComponent(args.output_file)
       }`,
@@ -236,5 +210,28 @@ const route = (req: Request) => {
   return not_found();
 };
 
-console.info(`Listening on port http://localhost:${port}`);
-console.info(`See http://localhost:${port}/example`);
+const onError = (error: unknown) => {
+  const err = error as Error;
+  console.warn("[WARN] 请求发生错误", err?.message, err?.cause);
+  return error_response({
+    code: 500,
+    message: err?.message,
+    template_error: err?.cause,
+  });
+};
+
+const server = Bun.serve({
+  port,
+  error: onError,
+  async fetch(req: Request) {
+    activeRequests++;
+    try {
+      return await route(req);
+    } finally {
+      activeRequests--;
+    }
+  },
+});
+
+console.info(`Listening on port http://localhost:${server.port}`);
+console.info(`See http://localhost:${server.port}/example`);

@@ -5,11 +5,12 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "type": "bun",
             "request": "launch",
             "name": "启动程序",
             "program": "${workspaceFolder}/index.ts",
-            "cwd": "${workspaceFolder}"
+            "cwd": "${workspaceFolder}",
+            "watchMode": false
         }
     ]
 }

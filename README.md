@@ -2,38 +2,45 @@
 
 ## 开发指南
 
-本服务基于[easy-template-x]文档模板功能，使用[Deno]编译成独立的可执行文件；
+本服务基于[easy-template-x]文档模板功能，使用[Bun]作为运行时并编译成独立的可执行文件；
 
 ## 依赖说明
 
 - `easy-template-x` 为 [qingtao/easy-template-x]（上游 [alonrbar/easy-template-x] 的 fork，包含接受`base64`字符串的图片内容的修改）的构建产物，已 **vendoring 在仓库的 `vendor/easy-template-x/` 目录**（含 `dist/` 构建产物与 `index.mts` 再导出模块），无需从任何仓库下载。
-- 其余 npm 依赖（`easy-template-x-angular-expressions` 及其传递依赖 `@xmldom/xmldom`、`jszip`、`lodash.get`、`json5`）由 Deno 从 **公共 npm 源** 解析，通过 `deno.json` 的 `imports` 与 `nodeModulesDir: auto` 管理，**不再依赖内部私有仓库**。
-- 首次运行/编译时 Deno 会自动拉取并缓存依赖；也可手动预拉取：
+- 其余 npm 依赖（`easy-template-x-angular-expressions` 及其传递依赖 `@xmldom/xmldom`、`jszip`、`lodash.get`、`json5`）由 Bun 从 **公共 npm 源** 解析，统一在 `package.json` 中声明，并由 `bun.lock` 锁定，**不再依赖内部私有仓库**。
+- `easy-template-x` 通过 `file:./vendor/easy-template-x` 与 `overrides` 引入，保证 `easy-template-x-angular-expressions` 也使用同一份 vendored 构建产物。
+- 首次运行/编译前先安装依赖：
 
 ```bash
-deno cache index.ts
+bun install
 ```
 
 ## 运行
 
 ```bash
-deno task dev
+bun run dev
 ```
 
 ## 编译打包
 
 ```bash
-# 编译（静态资源 public/ 会随 --include 嵌入二进制）
-deno task build:prod
+# 编译（静态资源 public/ 会随 --asset ./public 嵌入二进制）
+bun run build:prod
 # linux/arm64
-deno task build:linux:arm64
+bun run build:linux:arm64
 # linux/amd64
-deno task build:linux:amd64
+bun run build:linux:amd64
 # darwin/arm64
-deno task build:darwin:arm64
+bun run build:darwin:arm64
 ```
 
 编译成功后在 dist 目录下生成 `docx-tmpl` 文件
+
+> 注意：Bun 编译的 Linux 可执行文件默认依赖 glibc，若目标环境是 Alpine 等 musl 发行版，请改用 musl 目标，例如：
+>
+> ```bash
+> bun build --compile --asset ./public --target=bun-linux-x64-musl --outfile dist/docx-tmpl-musl index.ts
+> ```
 
 ## 备注
 
@@ -48,12 +55,12 @@ yarn install && yarn build
 cp -r <fork>/dist/* vendor/easy-template-x/dist/
 ```
 
-其余 npm 依赖版本统一在 `deno.json` 的 `imports` 中管理，如需升级直接修改对应版本号即可。
+其余 npm 依赖版本统一在 `package.json` 的 `dependencies` 中管理，如需升级直接修改对应版本号后重新 `bun install` 即可。
 
 ### 编辑器（VSCode）
 
-建议使用官方 Deno 扩展（`denoland.vscode-deno`），它会读取 `deno.json` 的 `imports` 映射与 `deno.ns` 类型。
-若编辑器中出现 “找不到名称 Deno” / “找不到模块 easy-template-x” 等类型报错，说明 Deno 语言服务未接管 `.ts` 文件：请重载 Deno 语言服务（命令面板执行 `Deno: Reload Language Server`），并禁用会抢占 `.ts` 检查的实验性 TypeScript 插件（如 tsgo 预览版）。可用 `deno check index.ts` / `deno lint index.ts` 在命令行验证，二者通过即代表代码本身无误。
+建议安装官方 Bun 扩展（`oven.bun-vscode`），它提供 Bun API 的补全与运行支持；类型声明来自 `@types/bun`（由 `tsconfig.json` 的 `types: ["bun"]` 引入）。
+若编辑器中出现 “找不到名称 Bun” / “找不到模块 easy-template-x” 等类型报错，多为依赖未安装或 TS 语言服务未刷新，可先 `bun install` 再重载窗口。可用 `bun run check`（即 `tsc --noEmit`）在命令行验证，通过即代表代码本身无误。
 
 ## 运行服务
 
@@ -135,7 +142,7 @@ PORT=8080 ./docx-tmpl
 
 模板法参考 [easy-template-x]
 
-[deno]: https://deno.com
+[bun]: https://bun.com/docs
 [easy-template-x]: https://github.com/qingtao/easy-template-x
 [alonrbar/easy-template-x]: https://github.com/alonrbar/easy-template-x
 
@@ -146,7 +153,6 @@ PORT=8080 ./docx-tmpl
 
 ```js
    const handler = new TemplateHandler({
-        // @ts-ignore 可能是替换easy-template-x包的问题，不影响使用，暂时先忽略
         scopeDataResolver: createResolver(),
         delimiters: {
           // 默认时是'['
