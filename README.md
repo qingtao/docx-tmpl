@@ -42,6 +42,15 @@ bun run build:darwin:arm64
 > bun build --compile --asset ./public --target=bun-linux-x64-musl --outfile dist/docx-tmpl-musl index.ts
 > ```
 
+### 一键发布
+
+编译全部平台并打包到 `release/`（压缩包内只含可执行文件，同时生成 `sha256sum.txt`）：
+
+```bash
+./release.sh                  # 全部平台
+./release.sh linux-amd64      # 只打包指定平台
+```
+
 ## 备注
 
 ### 更新 vendored 依赖
